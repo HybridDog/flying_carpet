@@ -75,6 +75,7 @@ function carpet:on_rightclick(clicker)
 		self.flying = true
 		self.falling = false
 		self.prefly = false
+		self.manatimer = 0
 		clicker:set_look_yaw(self.object:getyaw()-math.pi/2)
 		clicker:set_attach(self.object, "", {x=-4,y=11,z=0}, {x=0,y=90,z=0})
 		if mod_model then
@@ -101,6 +102,7 @@ end
 function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direction)
 	self.object:remove()
 	if puncher and puncher:is_player() then
+		self.manatimer = 0
 		puncher:get_inventory():add_item("main", "flying_carpet:carpet")
 		puncher:set_detach()
 		if mod_model then

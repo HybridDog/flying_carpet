@@ -202,7 +202,7 @@ minetest.register_craftitem("flying_carpet:carpet", {
 	description = "flying carpet",
 	inventory_image = "flying_carpet_inventory.png",
 	wield_image = "flying_carpet_wield.png",
-	wield_scale = {x=2, y=2, z=1},
+	wield_scale = {x=1.374, y=2, z=0.2},
 	
 	on_place = function(itemstack, placer, pointed_thing)
 		if pointed_thing.type ~= "node" then

@@ -72,10 +72,6 @@ function carpet:on_rightclick(clicker)
 		end
 	elseif not self.driver then
 		self.driver = clicker
-		self.flying = true
-		self.falling = false
-		self.prefly = false
-		self.manatimer = 0
 		clicker:set_look_yaw(self.object:getyaw()-math.pi/2)
 		clicker:set_attach(self.object, "", {x=-4,y=11,z=0}, {x=0,y=90,z=0})
 		if mod_model then
@@ -84,7 +80,13 @@ function carpet:on_rightclick(clicker)
 				default.player_set_animation(clicker, "sit", 30)
 			end)
 		end
-		self.object:setvelocity(get_velocity(4, self.object:getyaw(), 0))
+		if self.prefly then
+			self.flying = true
+			self.falling = false
+			self.prefly = false
+			self.manatimer = 0
+			self.object:setvelocity(get_velocity(4, self.object:getyaw(), 0))
+		end
 	end
 end
 

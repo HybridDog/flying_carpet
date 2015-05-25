@@ -62,6 +62,7 @@ local carpet = {
 	flying = false,
 	prefly = true,
 	starttimer = 0,
+	sound = nil,
 }
 
 function carpet:on_rightclick(clicker)
@@ -181,6 +182,30 @@ function carpet:on_step(dtime)
 	end
 
 	local sh = get_sign(self.h)
+
+	local p = self.object:getpos()
+	p.y = p.y-1
+	local n = minetest.get_node(p)
+	if n.name ~= "ignore" and n.name ~= "air" and n.name ~= nil then
+		local comma = p.y - math.floor(p.y)
+		if minetest.registered_nodes[n.name].walkable and self.h < 0.001 and comma > 0.52 and comma < 0.53 then
+			self.v = self.v - 0.2
+			if self.v > 1 and not self.sound then
+				self.sound = minetest.sound_play("flying_carpet_slide", {object = self.object, gain = 0.5, max_hear_distance = 24, loop = true })
+			elseif self.v <= 1 and self.sound then
+				minetest.sound_stop(self.sound)
+				self.sound = nil
+			end
+		elseif self.sound then
+			minetest.sound_stop(self.sound)
+			self.sound = nil
+		end
+	elseif self.sound then
+		minetest.sound_stop(self.sound)
+		self.sound = nil
+	end
+
+
 
 	self.starttimer = self.starttimer + dtime
 

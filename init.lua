@@ -26,6 +26,18 @@ local function get_v(v)
 end
 
 --
+-- Initialization
+--
+
+local mod_model
+if minetest.get_modpath("default") ~= nil or minetest.get_modpath("playermodel") then
+	mod_model = true
+else
+	mod_model = false
+end
+
+
+--
 -- Carpet entity
 --
 
@@ -54,8 +66,10 @@ function carpet:on_rightclick(clicker)
 	if self.driver and clicker == self.driver then
 		self.driver = nil
 		clicker:set_detach()
-		default.player_attached[name] = false
-		default.player_set_animation(clicker, "stand", 30)
+		if mod_model then
+			default.player_attached[name] = false
+			default.player_set_animation(clicker, "stand", 30)
+		end
 	elseif not self.driver then
 		self.driver = clicker
 		self.flying = true
@@ -63,10 +77,12 @@ function carpet:on_rightclick(clicker)
 		self.prefly = false
 		clicker:set_look_yaw(self.object:getyaw()-math.pi/2)
 		clicker:set_attach(self.object, "", {x=-4,y=11,z=0}, {x=0,y=90,z=0})
-		default.player_attached[name] = true
-		minetest.after(0.2, function()
-			default.player_set_animation(clicker, "sit", 30)
-		end)
+		if mod_model then
+			default.player_attached[name] = true
+			minetest.after(0.2, function()
+				default.player_set_animation(clicker, "sit", 30)
+			end)
+		end
 		self.object:setvelocity(get_velocity(4, self.object:getyaw(), 0))
 	end
 end
@@ -87,7 +103,9 @@ function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direc
 	if puncher and puncher:is_player() then
 		puncher:get_inventory():add_item("main", "flying_carpet:carpet")
 		puncher:set_detach()
-		default.player_attached[puncher:get_player_name()] = false
+		if mod_model then
+			default.player_attached[puncher:get_player_name()] = false
+		end
 	end
 end
 

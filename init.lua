@@ -157,7 +157,7 @@ function carpet:on_step(dtime)
 
 			if mod_mana then
 				if mana.getregen(self.driver:get_player_name()) < 0 and mana.get(self.driver:get_player_name()) == 0 then
-					minetest.sound_play("magic_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
+					minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
 					self.falling = true
 					self.flying = false
 				end
@@ -187,7 +187,7 @@ function carpet:on_step(dtime)
 	if self.v < 6 then
 		if self.starttimer >= 5 then
 			if self.falling == false then
-				minetest.sound_play("magic_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
+				minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
 				self.falling = true
 				self.flying = false
 			end
@@ -242,7 +242,7 @@ minetest.register_craftitem("flying_carpet:carpet", {
 		local ent = minetest.add_entity(place_pos, "flying_carpet:carpet")
 		ent:setyaw(placer:get_look_yaw())
 		itemstack:take_item()
-		minetest.sound_play("magic_carpet_place", {pos = place_pos})
+		minetest.sound_play("flying_carpet_place", {pos = place_pos})
 		return itemstack
 	end,
 })

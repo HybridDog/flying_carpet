@@ -29,11 +29,18 @@ end
 -- Initialization
 --
 
-local mod_model
+local mana_regen_cost = 1.5
+
+local mod_model, mod_mana
 if minetest.get_modpath("default") ~= nil or minetest.get_modpath("playermodel") then
 	mod_model = true
 else
 	mod_model = false
+end
+if minetest.get_modpath("mana") ~= nil then
+	mod_mana = true
+else
+	mod_mana = false
 end
 
 
@@ -70,6 +77,9 @@ function carpet:on_rightclick(clicker)
 			default.player_attached[name] = false
 			default.player_set_animation(clicker, "stand", 30)
 		end
+		if mod_mana then
+			mana.setregen(clicker:get_player_name(), mana.getregen(clicker:get_player_name())+mana_regen_cost)
+		end
 	elseif not self.driver then
 		self.driver = clicker
 		clicker:set_look_yaw(self.object:getyaw()-math.pi/2)
@@ -79,6 +89,9 @@ function carpet:on_rightclick(clicker)
 			minetest.after(0.2, function()
 				default.player_set_animation(clicker, "sit", 30)
 			end)
+		end
+		if mod_mana then
+			mana.setregen(clicker:get_player_name(), mana.getregen(clicker:get_player_name())-mana_regen_cost)
 		end
 		if self.prefly then
 			self.flying = true
@@ -102,13 +115,18 @@ function carpet:get_staticdata()
 end
 
 function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direction)
-	self.object:remove()
 	if puncher and puncher:is_player() then
-		self.manatimer = 0
-		puncher:get_inventory():add_item("main", "flying_carpet:carpet")
-		puncher:set_detach()
-		if mod_model then
-			default.player_attached[puncher:get_player_name()] = false
+		if self.driver == nil or self.driver == puncher then
+			self.manatimer = 0
+			puncher:get_inventory():add_item("main", "flying_carpet:carpet")
+			puncher:set_detach()
+			if mod_mana and self.driver == puncher then
+				mana.setregen(puncher:get_player_name(), mana.getregen(puncher:get_player_name())+mana_regen_cost)
+			end
+			if mod_model then
+				default.player_attached[puncher:get_player_name()] = false
+			end
+			self.object:remove()
 		end
 	end
 end
@@ -139,18 +157,12 @@ function carpet:on_step(dtime)
 			if ctrl.sneak then
 				self.h = self.h-0.03
 			end
-	
-			if minetest.get_modpath("mana") ~= nil then
-				self.manatimer = self.manatimer + dtime
-				if self.manatimer > 0.1 then
-					local units = math.floor(10*self.manatimer)
-					local success = mana.subtract(self.driver:get_player_name(), units)
-					self.manatimer = self.manatimer - 0.1 * units
-					if not success then
-						minetest.sound_play("magic_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
-						self.falling = true
-						self.flying = false
-					end
+
+			if mod_mana then
+				if mana.getregen(self.driver:get_player_name()) < 0 and mana.get(self.driver:get_player_name()) == 0 then
+					minetest.sound_play("magic_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
+					self.falling = true
+					self.flying = false
 				end
 			end
 	

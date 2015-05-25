@@ -58,7 +58,6 @@ local carpet = {
 	driver = nil,
 	v = 0,
 	h = 0,
-	manatimer = 0,
 	falling = false,
 	flying = false,
 	prefly = true,
@@ -97,7 +96,6 @@ function carpet:on_rightclick(clicker)
 			self.flying = true
 			self.falling = false
 			self.prefly = false
-			self.manatimer = 0
 			self.object:setvelocity(get_velocity(4, self.object:getyaw(), 0))
 		end
 	end
@@ -117,7 +115,6 @@ end
 function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direction)
 	if puncher and puncher:is_player() then
 		if self.driver == nil or self.driver == puncher then
-			self.manatimer = 0
 			puncher:get_inventory():add_item("main", "flying_carpet:carpet")
 			puncher:set_detach()
 			if mod_mana and self.driver == puncher then

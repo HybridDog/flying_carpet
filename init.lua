@@ -32,11 +32,9 @@ end
 local carpet = {
 	physical = true,
 	collisionbox = {-1,-0.02,-1, 1,0.02,1},
-	--visual = "mesh",
-	visual_size = {x=2,y=0.04},
-	visual = "cube",
-	--mesh = "flying_carpet_carpet.x",
-	textures = {"flying_carpet_texture.png","flying_carpet_texture.png","flying_carpet_border.png","flying_carpet_border.png","flying_carpet_border.png","flying_carpet_border.png"},
+	visual = "mesh",
+	mesh = "flying_carpet_model.obj",
+	textures = {"flying_carpet_surface.png"},
 
 	driver = nil,
 	v = 0,

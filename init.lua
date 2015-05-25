@@ -140,12 +140,12 @@ function carpet:on_step(dtime)
 				self.manatimer = self.manatimer + dtime
 				if self.manatimer > 0.1 then
 					local units = math.floor(10*self.manatimer)
-					local success = mana.subtract(self.driver:get_player_name(), units*2)
-					self.manatimer = self.manatimer - 10*units
+					local success = mana.subtract(self.driver:get_player_name(), units)
+					self.manatimer = self.manatimer - 0.1 * units
 					if not success then
 						minetest.sound_play("magic_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
-						falling = true
-						flying = false
+						self.falling = true
+						self.flying = false
 					end
 				end
 			end

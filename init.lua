@@ -62,6 +62,8 @@ local carpet = {
 	flying = false,
 	prefly = true,
 	starttimer = 0,
+
+	sound_flight = nil,
 }
 
 function carpet:on_rightclick(clicker)
@@ -123,6 +125,10 @@ function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direc
 			if mod_model then
 				default.player_attached[puncher:get_player_name()] = false
 			end
+			if self.sound_flight then
+				minetest.sound_stop(self.sound_flight)
+				self.sound_flight = nil
+			end
 			self.object:remove()
 		end
 	end
@@ -178,6 +184,14 @@ function carpet:on_step(dtime)
 		else
 			self.v = self.v - 0.025
 		end
+		if self.v > 3 then
+			if not self.sound_flight then
+				self.sound_flight = minetest.sound_play("flying_carpet_flight", {object = self.object, gain = 0.6, max_hear_distance = 16, loop = true })
+			end
+		elseif self.sound_flight then
+			minetest.sound_stop(self.sound_flight)
+			self.sound_flight = nil
+		end
 	end
 
 	local sh = get_sign(self.h)
@@ -190,6 +204,9 @@ function carpet:on_step(dtime)
 				minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
 				self.falling = true
 				self.flying = false
+				if self.sound_flight then
+					self.sound_flight = minetest.sound_stop(self.sound_flight)
+				end
 			end
 			self.v = self.v - 0.04
 		end

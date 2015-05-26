@@ -2,6 +2,8 @@ Minetest mod: Flying Carpet
 ===========================
 by Wuzzy
 
+Version: 0.1.0
+
 License of source code:
 -----------------------
 WTFPL

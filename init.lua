@@ -118,6 +118,7 @@ function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direc
 	if puncher and puncher:is_player() then
 		if self.driver == nil or self.driver == puncher then
 			puncher:get_inventory():add_item("main", "flying_carpet:carpet")
+			minetest.sound_play("flying_carpet_take", {pos=self.object:getpos(), gain=0.3})
 			puncher:set_detach()
 			if mod_mana and self.driver == puncher then
 				mana.setregen(puncher:get_player_name(), mana.getregen(puncher:get_player_name())+mana_regen_cost)
@@ -259,7 +260,7 @@ minetest.register_craftitem("flying_carpet:carpet", {
 		local ent = minetest.add_entity(place_pos, "flying_carpet:carpet")
 		ent:setyaw(placer:get_look_yaw())
 		itemstack:take_item()
-		minetest.sound_play("flying_carpet_place", {pos = place_pos})
+		minetest.sound_play("flying_carpet_place", {pos = place_pos, gain = 1})
 		return itemstack
 	end,
 })

@@ -167,6 +167,10 @@ function carpet:on_step(dtime)
 					minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
 					self.falling = true
 					self.flying = false
+					if self.sound_flight then
+						minetest.sound_stop(self.sound_flight)
+						self.sound_flight = nil
+					end
 				end
 			end
 	
@@ -185,7 +189,7 @@ function carpet:on_step(dtime)
 		else
 			self.v = self.v - 0.025
 		end
-		if self.v > 3 then
+		if self.v > 3 and self.flying then
 			if not self.sound_flight then
 				self.sound_flight = minetest.sound_play("flying_carpet_flight", {object = self.object, gain = 0.6, max_hear_distance = 16, loop = true })
 			end

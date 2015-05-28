@@ -50,7 +50,8 @@ end
 
 local carpet = {
 	physical = true,
-	collisionbox = {-1,-0.02,-1, 1,0.02,1},
+	-- FIXME: shrink collisionbox to actual carpet width when Minetest weirdness has been fixed
+	collisionbox = {-1,-0.02,-1, 1,0.2,1},
 	visual = "mesh",
 	mesh = "flying_carpet_model.obj",
 	textures = {"flying_carpet_surface.png"},
@@ -84,7 +85,7 @@ function carpet:on_rightclick(clicker)
 	elseif not self.driver then
 		self.driver = clicker
 		clicker:set_look_yaw(self.object:getyaw()-math.pi/2)
-		clicker:set_attach(self.object, "", {x=-4,y=11,z=0}, {x=0,y=90,z=0})
+		clicker:set_attach(self.object, "", {x=-4,y=10.1,z=0}, {x=0,y=90,z=0})
 		if mod_model then
 			default.player_attached[name] = true
 			minetest.after(0.2, function()
@@ -156,10 +157,14 @@ function carpet:on_step(dtime)
 				self.object:setyaw(self.object:getyaw()-math.pi/600-dtime*math.pi/600)
 			end
 			if ctrl.jump then
-				self.h = self.h+0.02
+				if self.v >= 6 then
+					self.h = self.h+0.02
+				end
 			end
 			if ctrl.sneak then
-				self.h = self.h-0.03
+				if self.v >= 6 then
+					self.h = self.h-0.03
+				end
 			end
 
 			if mod_mana then

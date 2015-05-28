@@ -2,11 +2,6 @@
 -- Helper functions
 --
 
-local function is_water(pos)
-	local nn = minetest.env:get_node(pos).name
-	return minetest.get_item_group(nn, "water") ~= 0
-end
-
 local function get_sign(i)
 	if i == 0 then
 		return 0
@@ -208,6 +203,17 @@ function carpet:on_step(dtime)
 	local sh = get_sign(self.h)
 
 	self.starttimer = self.starttimer + dtime
+
+	local p = self.object:getpos()
+	p.y = p.y-0.3
+	local ndef = minetest.registered_nodes[minetest.get_node(p).name]
+	if ndef.liquidtype ~= "none" then
+		if self.h < 0.1 then
+			self.h = self.h + 0.05
+			self.v = self.v - 0.05 * ndef.liquid_viscosity
+		end
+	end
+
 
 	if self.v < 6 then
 		if self.starttimer >= 5 then

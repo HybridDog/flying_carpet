@@ -50,8 +50,8 @@ end
 
 local carpet = {
 	physical = true,
-	-- FIXME: shrink collisionbox to actual carpet width when Minetest weirdness has been fixed
-	collisionbox = {-1,-0.02,-1, 1,0.2,1},
+	collide_with_objects = false,
+	collisionbox = {-1,-0.02,-1, 1,0.02,1},
 	visual = "mesh",
 	mesh = "flying_carpet_model.obj",
 	textures = {"flying_carpet_surface.png"},

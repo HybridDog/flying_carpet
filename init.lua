@@ -60,6 +60,10 @@ local carpet = {
 	starttimer = 0,
 	sound_slide = nil,
 	sound_flight = nil,
+	slidepos = nil,
+	slidenode = nil,
+	liquidpos = nil,
+	liquidnode = nil,
 }
 
 function carpet:on_rightclick(clicker)
@@ -203,11 +207,18 @@ function carpet:on_step(dtime)
 	local sh = get_sign(self.h)
 
 	local op = self.object:getpos()
-	local p = table.copy(op)
-	p.y = p.y-1
-	local n = minetest.get_node(p)
+	local ps = table.copy(op)
+	ps.y = ps.y-1
+	local n
+	if self.slidepos ~= nil and vector.equals(vector.round(ps), self.slidepos) then
+		n = self.slidenode
+	else
+		n = minetest.get_node(ps)
+		self.slidepos = vector.round(ps)
+		self.slidenode = n
+	end
 	if n.name ~= "ignore" and n.name ~= "air" and n.name ~= nil then
-		local comma = p.y - math.floor(p.y)
+		local comma = ps.y - math.floor(ps.y)
 		if minetest.registered_nodes[n.name].walkable and self.h < 0.001 and comma > 0.52 and comma < 0.53 then
 			self.v = self.v - 0.2
 			if self.v > 1 and not self.sound_slide then
@@ -225,9 +236,17 @@ function carpet:on_step(dtime)
 		self.sound_slide = nil
 	end
 
-	p = table.copy(op)
-	p.y = p.y-0.3
-	local ndef = minetest.registered_nodes[minetest.get_node(p).name]
+	local pl = table.copy(op)
+	pl.y = pl.y-0.3
+	if self.liquidpos ~= nil and vector.equals(vector.round(pl), self.liquidpos) then
+		n = self.liquidnode
+	else
+		n = minetest.get_node(pl)
+		self.liquidpos = vector.round(pl)
+		self.liquidnode = n
+	end
+
+	local ndef = minetest.registered_nodes[n.name]
 	if ndef.liquidtype ~= "none" then
 		if self.h < 0.1 then
 			self.h = self.h + 0.05
@@ -262,6 +281,7 @@ function carpet:on_step(dtime)
 			self.h = 0
 		end
 	end
+
 
 	if self.v < 0 then
 		self.v = 0

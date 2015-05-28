@@ -281,6 +281,15 @@ minetest.register_craftitem("flying_carpet:carpet", {
 			end
 		end
 
+		-- check if carpet wouldn't collide with any nearby carpet
+		local conflict_objects = minetest.get_objects_inside_radius(place_pos, math.sqrt(2)*1.5)
+		for i=1, #conflict_objects do
+			local le = conflict_objects[i]:get_luaentity()
+			if le ~= nil and le.name == "flying_carpet:carpet" then
+				return
+			end
+		end
+
 		local ent = minetest.add_entity(place_pos, "flying_carpet:carpet")
 		ent:setyaw(placer:get_look_yaw())
 		itemstack:take_item()

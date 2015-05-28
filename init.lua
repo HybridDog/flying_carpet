@@ -267,6 +267,20 @@ minetest.register_craftitem("flying_carpet:carpet", {
 		end
 		local place_pos = pointed_thing.under
 		place_pos.y = place_pos.y+1.5
+		-- check if there is enough free space for the carpet
+		local check_pos = vector.round(place_pos)
+		for x=-1,1 do
+			for y=-1,0 do
+				for z=-1,1 do
+					local node = minetest.get_node({x=check_pos.x+x, y=check_pos.y+y, z=check_pos.z+z})
+					local nodedef = minetest.registered_nodes[node.name]
+					if not (not nodedef.walkable and nodedef.liquidtype == "none") then
+						return
+					end
+				end
+			end
+		end
+
 		local ent = minetest.add_entity(place_pos, "flying_carpet:carpet")
 		ent:setyaw(placer:get_look_yaw())
 		itemstack:take_item()

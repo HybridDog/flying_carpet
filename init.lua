@@ -181,6 +181,7 @@ function carpet:on_step(dtime)
 	
 			if self.v > 15 then
 				self.v = 15
+				self.v = self.v - 0.02
 			elseif self.v > 12 then
 				self.v = self.v - 0.02
 			elseif self.v < 6 then

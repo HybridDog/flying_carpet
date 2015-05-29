@@ -26,3 +26,4 @@ Authors and licenses of media files:
 - flying_carpet_smoke.png.png: Wuzzy. WTFPL
 - flying_carpet_star.png: Wuzzy, WTFPL
 - flying_carpet_star_warning.png: Wuzzy, WTFPL
+- flying_carpet_star_death.png: Wuzzy, WTFPL

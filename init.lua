@@ -96,7 +96,7 @@ local carpet = {
 	flying = false,
 	prefly = true,
 	starttimer = 0,
-	deathtimer = 0,
+	deathtime = nil,
 	sound_slide = nil,
 	sound_flight = nil,
 	slidepos = nil,
@@ -155,7 +155,11 @@ function carpet:on_activate(staticdata, dtime_s)
 		self.falling = data.falling
 		self.flying = data.flying
 		self.prefly = data.prefly
-		self.deathtimer = data.deathtimer
+		self.deathtime = data.deathtime
+		if minetest.get_gametime() >= self.deathtime then
+			self.object:remove()
+			return
+		end
 	end
 end
 
@@ -166,7 +170,7 @@ function carpet:get_staticdata()
 	data.falling = self.falling
 	data.flying = self.flying
 	data.prefly = self.prefly
-	data.deathtimer = self.deathtimer
+	data.deathtime = self.deathtime
 	return minetest.serialize(data)
 end
 
@@ -195,8 +199,10 @@ function carpet:on_step(dtime)
 	-- Remove magic carpet after idling for 1 minute
 	if self.falling or self.prefly then
 		if self.v < 0.01 and self.h < 0.01 and self.driver == nil and self.object then
-			self.deathtimer = self.deathtimer + dtime
-			if self.deathtimer > 60 then
+			if self.deathtime == nil then
+				self.deathtime = minetest.get_gametime() + 60
+			end
+			if minetest.get_gametime() >= self.deathtime then
 				local src = self.object:getpos()
 				local yaw = self.object:getyaw()
 				minetest.add_particlespawner({
@@ -216,7 +222,7 @@ function carpet:on_step(dtime)
 				return
 			end
 		else
-			self.deathtimer = 0
+			self.deathtime = nil
 		end
 	end
 	if not self.prefly then

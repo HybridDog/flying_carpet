@@ -148,13 +148,26 @@ end
 
 function carpet:on_activate(staticdata, dtime_s)
 	self.object:set_armor_groups({fabric=100})
-	if staticdata then
-		self.v = tonumber(staticdata)
+	if staticdata ~= nil and staticdata ~= "" then
+		local data = minetest.deserialize(staticdata)
+		self.v = data.v
+		self.h = data.h
+		self.falling = data.falling
+		self.flying = data.flying
+		self.prefly = data.prefly
+		self.deathtimer = data.deathtimer
 	end
 end
 
 function carpet:get_staticdata()
-	return tostring(v)
+	local data = {}
+	data.v = self.v
+	data.h = self.h
+	data.falling = self.falling
+	data.flying = self.flying
+	data.prefly = self.prefly
+	data.deathtimer = self.deathtimer
+	return minetest.serialize(data)
 end
 
 function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direction)

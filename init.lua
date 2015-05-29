@@ -30,7 +30,7 @@ local function magic_particle(object)
 	velo = vector.multiply(velo, 0.1)
 	return minetest.add_particlespawner({
 		amount = 50,
-		time = 0.1,
+		time = 1,
 		minpos = {x=src.x-1.5, y=src.y-0.03, z=src.z-1.5},
 		maxpos = {x=src.x+1.5, y=src.y+0.03, z=src.z+1.},
 		minvel = {x=velo.x-0.4, y=velo.y-0.1, z=velo.z-0.4},
@@ -104,6 +104,7 @@ local carpet = {
 	past_velocities = init_velocities(),
 	past_diff = 0,
 	last_damage = nil,
+	last_particle = 1,
 }
 
 function carpet:on_rightclick(clicker)
@@ -180,6 +181,15 @@ function carpet:on_step(dtime)
 
 	self.v = get_v(self.object:getvelocity())*get_sign(self.v)
 	self.h = self.object:getvelocity().y
+
+	local spawn_particles
+	self.last_particle = self.last_particle + 0.1
+	if self.last_particle > 0.1 then
+		spawn_particles = true
+		self.last_particle = 0
+	else
+		spawn_particles = false
+	end
 
 	-- check for big recent changes in speed, (likely caused by collisions)
 	self.past_velocities = update_velocities(self.past_velocities, self.object:getvelocity())
@@ -270,27 +280,29 @@ function carpet:on_step(dtime)
 			self.v = self.v - 0.025
 		end
 		if self.v > 3 and self.flying then
-			local star
-			if self.v > 7.5 then
-				star = "flying_carpet_star.png"
-			else
-				star = "flying_carpet_star_warning.png"
+			if spawn_particles then
+				local star
+				if self.v > 7.5 then
+					star = "flying_carpet_star.png"
+				else
+					star = "flying_carpet_star_warning.png"
+				end
+				local src = self.object:getpos()
+				local velo = self.object:getvelocity()
+				minetest.add_particlespawner({
+					amount = math.ceil(math.min(3,math.max(0,self.v+3))),
+					time = 0.1,
+					minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
+					maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
+					minvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
+					maxvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
+					minexptime=2.2,
+					maxexptime=1.8,
+					minsize=1,
+					maxsize=1.25,
+					texture = star,
+				})
 			end
-			local src = self.object:getpos()
-			local velo = self.object:getvelocity()
-			minetest.add_particlespawner({
-				amount = math.ceil(math.min(3,math.max(0,self.v+3))),
-				time = 0.1,
-				minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
-				maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
-				minvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
-				maxvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
-				minexptime=2.2,
-				maxexptime=1.8,
-				minsize=1,
-				maxsize=1.25,
-				texture = star,
-			})
 			if not self.sound_flight then
 				self.sound_flight = minetest.sound_play("flying_carpet_flight", {object = self.object, gain = 0.6, max_hear_distance = 16, loop = true })
 			end
@@ -318,21 +330,23 @@ function carpet:on_step(dtime)
 		if minetest.registered_nodes[n.name].walkable and self.h < 0.001 and comma > 0.52 and comma < 0.53 then
 			self.v = self.v - 0.2
 
-			local src = self.object:getpos()
-			local velo = self.object:getvelocity()
-			minetest.add_particlespawner({
-				amount = math.ceil(math.min(10,math.max(0,self.v))),
-				time = 0.1,
-				minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
-				maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
-				minvel = {x=-velo.x*0.01-0.1, y=velo.y*0.05+0.01, z=-velo.z*0.01-0.1},
-				maxvel = {x=-velo.x*0.01+0.1, y=velo.y*0.05+0.05, z=-velo.z*0.01+0.1},
-				minexptime=10,
-				maxexptime=15,
-				minsize=1,
-				maxsize=1.25,
-				texture = "flying_carpet_smoke.png",
-			})
+			if spawn_particles then
+				local src = self.object:getpos()
+				local velo = self.object:getvelocity()
+				minetest.add_particlespawner({
+					amount = math.ceil(math.min(10,math.max(0,self.v))),
+					time = 1,
+					minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
+					maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
+					minvel = {x=-velo.x*0.01-0.1, y=velo.y*0.05+0.01, z=-velo.z*0.01-0.1},
+					maxvel = {x=-velo.x*0.01+0.1, y=velo.y*0.05+0.05, z=-velo.z*0.01+0.1},
+					minexptime=10,
+					maxexptime=15,
+					minsize=1,
+					maxsize=1.25,
+					texture = "flying_carpet_smoke.png",
+				})
+			end
 			if self.v > 1 and not self.sound_slide then
 				self.sound_slide = minetest.sound_play("flying_carpet_slide", {object = self.object, gain = 0.5, max_hear_distance = 24, loop = true })
 			elseif self.v <= 1 and self.sound_slide then

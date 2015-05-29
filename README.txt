@@ -22,3 +22,7 @@ Authors and licenses of media files:
 - flying_carpet_wield.png: Roman Zacharij and Wuzzy, WTFPL
 - flying_carpet_inventory.png: Roman Zacharij and Wuzzy, WTFPL
 - flying_carpet_slide.ogg: crcavol, WTFPL
+- flying_carpet_magic_smoke.png: Wuzzy, WTFPL
+- flying_carpet_smoke.png.png: Wuzzy. WTFPL
+- flying_carpet_star.png: Wuzzy, WTFPL
+- flying_carpet_star_warning.png: Wuzzy, WTFPL

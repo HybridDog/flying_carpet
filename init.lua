@@ -24,6 +24,25 @@ local function get_v3(v)
 	return math.sqrt(v.x^2+v.y^2+v.z^2)
 end
 
+local function magic_particle(object)
+	local src = object:getpos()
+	local velo = object:getvelocity()
+	velo = vector.multiply(velo, 0.1)
+	return minetest.add_particlespawner({
+		amount = 50,
+		time = 0.1,
+		minpos = {x=src.x-1.5, y=src.y-0.03, z=src.z-1.5},
+		maxpos = {x=src.x+1.5, y=src.y+0.03, z=src.z+1.},
+		minvel = {x=velo.x-0.4, y=velo.y-0.1, z=velo.z-0.4},
+		maxvel = {x=velo.x+0.4, y=velo.y+0.1, z=velo.z+0.4},
+		minexptime=4.5,
+		maxexptime=6,
+		minsize=1,
+		maxsize=1.25,
+		texture = "flying_carpet_magic_smoke.png",
+	})
+end
+
 --
 -- Initialization
 --
@@ -224,6 +243,7 @@ function carpet:on_step(dtime)
 			if mod_mana then
 				if mana.getregen(self.driver:get_player_name()) < 0 and mana.get(self.driver:get_player_name()) == 0 then
 					minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
+					magic_particle(self.object)
 					self.falling = true
 					self.flying = false
 					if self.sound_flight then
@@ -250,6 +270,27 @@ function carpet:on_step(dtime)
 			self.v = self.v - 0.025
 		end
 		if self.v > 3 and self.flying then
+			local star
+			if self.v > 7.5 then
+				star = "flying_carpet_star.png"
+			else
+				star = "flying_carpet_star_warning.png"
+			end
+			local src = self.object:getpos()
+			local velo = self.object:getvelocity()
+			minetest.add_particlespawner({
+				amount = math.ceil(math.min(3,math.max(0,self.v+3))),
+				time = 0.1,
+				minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
+				maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
+				minvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
+				maxvel = {x=velo.x*0.01,y=velo.y*0.01,z=velo.z*0.01},
+				minexptime=2.2,
+				maxexptime=1.8,
+				minsize=1,
+				maxsize=1.25,
+				texture = star,
+			})
 			if not self.sound_flight then
 				self.sound_flight = minetest.sound_play("flying_carpet_flight", {object = self.object, gain = 0.6, max_hear_distance = 16, loop = true })
 			end
@@ -276,6 +317,22 @@ function carpet:on_step(dtime)
 		local comma = ps.y - math.floor(ps.y)
 		if minetest.registered_nodes[n.name].walkable and self.h < 0.001 and comma > 0.52 and comma < 0.53 then
 			self.v = self.v - 0.2
+
+			local src = self.object:getpos()
+			local velo = self.object:getvelocity()
+			minetest.add_particlespawner({
+				amount = math.ceil(math.min(10,math.max(0,self.v))),
+				time = 0.1,
+				minpos = {x=src.x-0.6, y=src.y-0.02, z=src.z-0.6},
+				maxpos = {x=src.x+0.6, y=src.y-0.02, z=src.z+0.6},
+				minvel = {x=-velo.x*0.01-0.1, y=velo.y*0.05+0.01, z=-velo.z*0.01-0.1},
+				maxvel = {x=-velo.x*0.01+0.1, y=velo.y*0.05+0.05, z=-velo.z*0.01+0.1},
+				minexptime=10,
+				maxexptime=15,
+				minsize=1,
+				maxsize=1.25,
+				texture = "flying_carpet_smoke.png",
+			})
 			if self.v > 1 and not self.sound_slide then
 				self.sound_slide = minetest.sound_play("flying_carpet_slide", {object = self.object, gain = 0.5, max_hear_distance = 24, loop = true })
 			elseif self.v <= 1 and self.sound_slide then
@@ -317,6 +374,7 @@ function carpet:on_step(dtime)
 				minetest.sound_play("flying_carpet_out_of_energy", {pos = self.object:getpos(), gain=0.7})
 				self.falling = true
 				self.flying = false
+				magic_particle(self.object)
 				if self.sound_flight then
 					self.sound_flight = minetest.sound_stop(self.sound_flight)
 				end

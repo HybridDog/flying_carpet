@@ -20,6 +20,10 @@ local function get_v(v)
 	return math.sqrt(v.x^2+v.z^2)
 end
 
+local function get_v3(v)
+	return math.sqrt(v.x^2+v.y^2+v.z^2)
+end
+
 --
 -- Initialization
 --
@@ -43,6 +47,20 @@ end
 -- Carpet entity
 --
 
+local init_velocities = function()
+	local ret = {}
+	for i=1,50 do
+		table.insert(ret,{x=0,y=0,z=0})
+	end
+	return ret
+end
+
+local update_velocities = function(velocities, new_value)
+	table.insert(velocities, 1, new_value)
+	table.remove(velocities, 51)
+	return velocities
+end
+
 local carpet = {
 	physical = true,
 	collide_with_objects = false,
@@ -64,6 +82,9 @@ local carpet = {
 	slidenode = nil,
 	liquidpos = nil,
 	liquidnode = nil,
+	past_velocities = init_velocities(),
+	past_diff = 0,
+	last_damage = nil,
 }
 
 function carpet:on_rightclick(clicker)
@@ -137,8 +158,42 @@ end
 
 function carpet:on_step(dtime)
 	if not self.prefly then
+
 	self.v = get_v(self.object:getvelocity())*get_sign(self.v)
 	self.h = self.object:getvelocity().y
+
+	-- check for big recent changes in speed, (likely caused by collisions)
+	self.past_velocities = update_velocities(self.past_velocities, self.object:getvelocity())
+	local avg = {x=0,y=0,z=0}
+	for i=1,#self.past_velocities do
+		avg.x = avg.x + self.past_velocities[i].x
+		avg.y = avg.y + self.past_velocities[i].y
+		avg.z = avg.z + self.past_velocities[i].z
+	end
+	avg.x = avg.x/#self.past_velocities
+	avg.y = avg.y/#self.past_velocities
+	avg.z = avg.z/#self.past_velocities
+
+	local v3_avg = get_v3(avg)
+	local v3 = get_v3(self.object:getvelocity())
+
+	local diff = math.abs(v3_avg - v3)
+
+	if self.last_damage ~= nil then
+		self.last_damage = self.last_damage + dtime
+	end
+
+	-- hurt the driver if there was a large recent speed change
+	if self.driver then
+		if diff >= 9 and diff > self.past_diff then
+			-- ... but don't hurt the driver too many times in a row accidentally
+			if self.last_damage == nil or self.last_damage > 1 then
+				self.driver:set_hp(self.driver:get_hp() - math.floor(diff - 9))
+				self.last_damage = 0
+			end
+		end
+	end
+	self.past_diff = diff
 
 	if self.flying then
 		if self.driver then

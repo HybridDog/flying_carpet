@@ -156,7 +156,7 @@ function carpet:on_activate(staticdata, dtime_s)
 		self.flying = data.flying
 		self.prefly = data.prefly
 		self.deathtime = data.deathtime
-		if minetest.get_gametime() >= self.deathtime then
+		if self.deathtime ~= nil and minetest.get_gametime() >= self.deathtime then
 			self.object:remove()
 			return
 		end
@@ -164,6 +164,14 @@ function carpet:on_activate(staticdata, dtime_s)
 end
 
 function carpet:get_staticdata()
+	if self.sound_flight then
+		minetest.sound_stop(self.sound_flight)
+		self.sound_flight = nil
+	end
+	if self.sound_slide then
+		minetest.sound_stop(self.sound_slide)
+		self.sound_slide = nil
+	end
 	local data = {}
 	data.v = self.v
 	data.h = self.h

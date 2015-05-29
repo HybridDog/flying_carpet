@@ -24,10 +24,11 @@ local function get_v3(v)
 	return math.sqrt(v.x^2+v.y^2+v.z^2)
 end
 
-local function magic_particle(object)
+local function magic_particle(object, texture)
 	local src = object:getpos()
 	local velo = object:getvelocity()
 	velo = vector.multiply(velo, 0.1)
+	if texture == nil then texture = "flying_carpet_magic_smoke.png" end
 	return minetest.add_particlespawner({
 		amount = 50,
 		time = 1,
@@ -39,7 +40,7 @@ local function magic_particle(object)
 		maxexptime=6,
 		minsize=1,
 		maxsize=1.25,
-		texture = "flying_carpet_magic_smoke.png",
+		texture = texture,
 	})
 end
 
@@ -95,6 +96,7 @@ local carpet = {
 	flying = false,
 	prefly = true,
 	starttimer = 0,
+	deathtimer = 0,
 	sound_slide = nil,
 	sound_flight = nil,
 	slidepos = nil,
@@ -177,6 +179,33 @@ function carpet:on_punch(puncher, time_from_last_punch, tool_capabilities, direc
 end
 
 function carpet:on_step(dtime)
+	-- Remove magic carpet after idling for 1 minute
+	if self.falling or self.prefly then
+		if self.v < 0.01 and self.h < 0.01 and self.driver == nil and self.object then
+			self.deathtimer = self.deathtimer + dtime
+			if self.deathtimer > 60 then
+				local src = self.object:getpos()
+				local yaw = self.object:getyaw()
+				minetest.add_particlespawner({
+					amount = 50,
+					time = 0.1,
+					minpos = {x=src.x-1, y=src.y-0.02, z=src.z-1},
+					maxpos = {x=src.x+1, y=src.y+0.02, z=src.z+1},
+					minvel = {x=-0.01, y=0, z=0.01},
+					maxvel = {x=0.01, y=0, z=0.01},
+					minexptime=4.5,
+					maxexptime=6,
+					minsize=1.5,
+					maxsize=1.5,
+					texture = "flying_carpet_death.png",
+				})
+				self.object:remove()
+				return
+			end
+		else
+			self.deathtimer = 0
+		end
+	end
 	if not self.prefly then
 
 	self.v = get_v(self.object:getvelocity())*get_sign(self.v)

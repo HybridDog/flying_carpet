@@ -6,7 +6,7 @@ Version: 0.3.0
 
 Introduction
 ------------
-Quickly explore the vast terrain with the magical flying carpet. But be careful, you need to be a bit skilled to be able to fly it, and being careless may lead to damage or even death.
+Quickly explore the vast terrain with the magical flying carpet. But only the skilled users can master its speed, the fools will crash and hurt themselves.
 
 The carpet flies fast horizontally, but very slowly is it able to move vertically. It constantly reduces your mana resources, you can't use it forever (note: only if Mana mod is installed).
 
